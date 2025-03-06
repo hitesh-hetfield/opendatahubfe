@@ -3,20 +3,11 @@
 import React from 'react'
 import '@rainbow-me/rainbowkit/styles.css';
 import {
-    ConnectButton,
     darkTheme,
     getDefaultConfig,
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import {
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    polygonAmoy,
-} from 'wagmi/chains';
 import {
     QueryClientProvider,
     QueryClient,
@@ -24,6 +15,7 @@ import {
 import { ThemeProvider } from './theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/Navbar';
+import NextTopLoader from 'nextjs-toploader';
 
 
 export default function Provider({ children }) {
@@ -32,7 +24,6 @@ export default function Provider({ children }) {
         appName: 'Open Data Hub',
         projectId: "53b84ce689dd6fc6ceb9f7b7439439b5",
         chains: [
-            polygonAmoy,
             {
                 id: 997995,
                 name: '5ire QA',
@@ -54,8 +45,13 @@ export default function Provider({ children }) {
                         enableSystem
                         disableTransitionOnChange>
                         <Toaster />
-                        <Navbar />
-                        {children}
+                        <NextTopLoader color='#6D28D9' showSpinner={false} />
+                        <div className='h-screen w-screen flex items-center px-2 flex-row'>
+                            <Navbar />
+                            <div className='w-full overflow-auto h-[90%] rounded-lg bg-accent/30 m-3'>
+                                {children}
+                            </div>
+                        </div>
                     </ThemeProvider>
                 </RainbowKitProvider>
             </QueryClientProvider>

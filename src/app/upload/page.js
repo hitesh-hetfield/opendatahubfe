@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
 
 const PinataAPIKey = process.env.NEXT_PUBLIC_API;
 const PinataAPISecret = process.env.NEXT_PUBLIC_Secret;
@@ -112,7 +113,6 @@ export default function UploadDataset() {
                 abi: contractABI,
                 functionName: 'registerDataset',
                 args: [metadata.name, metadataIpfsHash, priceInWei],
-                value: priceInWei,
             });
             const docRef = doc(db, "opendatahub", metadataIpfsHash);
 
@@ -141,47 +141,53 @@ export default function UploadDataset() {
     };
 
     return (
-        <div className="flex flex-col justify-center w-full items-center mt-9">
-            <h1 className="text-3xl font-bold mb-6">Sell Your Datasets</h1>
-            <Card className="w-full max-w-md shadow-lg">
+        <div className="flex flex-col h-full justify-center w-full items-center">
+            <Card className="w-full max-w-md shadow-lg bg-accent/30">
                 <CardHeader>
-                    <CardTitle>Details of your dataset</CardTitle>
-                    <CardDescription>Users will be able to see these details</CardDescription>
+                    <CardTitle className="text-3xl font-mono">Sell Your Datasets</CardTitle>
+                    {/* <CardDescription>Users will be able to see these details when buying your datasets.</CardDescription> */}
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="file">Upload CSV File</Label>
-                        <Input id="file" type="file" onChange={handleFileChange} accept=".csv" />
+                        <Label htmlFor="file"
+                            className="text-sm font-bold text-secondary-foreground/80">Upload CSV File</Label>
+                        <Input
+                            className="hover:bg-black/30 focus:bg-black/20 transition-colors delay-75"
+                            id="file" type="file" onChange={handleFileChange} accept=".csv" />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="name">Dataset Name</Label>
+                        <Label htmlFor="name" className="text-sm font-bold text-secondary-foreground/80">Dataset Name</Label>
                         <Input
+                            className="hover:bg-black/30 p-6 focus:bg-black/20 transition-colors delay-75"
                             id="name"
                             type="text"
                             name="name"
-                            placeholder="Dataset Name"
+                            placeholder="e.g. 2024 stock market dataset"
                             value={metadata.name}
                             onChange={handleMetadataChange}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Input
+                        <Label htmlFor="description" className="text-sm font-bold text-secondary-foreground/80">Description</Label>
+                        <Textarea
+                            className="hover:bg-black/30 p-6 focus:bg-black/20 transition-colors delay-75"
+
                             id="description"
                             type="text"
                             name="description"
-                            placeholder="Description"
+                            placeholder="e.g. This dataset contains data for 2024 stock exchange data among companies..."
                             value={metadata.description}
                             onChange={handleMetadataChange}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="price">Price (ETH)</Label>
+                        <Label htmlFor="price" className="text-sm font-bold text-secondary-foreground/80">Price (5ire)</Label>
                         <Input
+                            className="hover:bg-black/30 p-6 focus:bg-black/20 transition-colors delay-75"
                             id="price"
                             type="text"
                             name="price"
-                            placeholder="Price (ETH)"
+                            placeholder="e.g. 101"
                             value={metadata.price}
                             onChange={handleMetadataChange}
                         />

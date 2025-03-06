@@ -17,7 +17,8 @@
 /.next/
 /out/
 
-firebase.js
+#firebase api keys
+./firebase.js
 
 # production
 /build

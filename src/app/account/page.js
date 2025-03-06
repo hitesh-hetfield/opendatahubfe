@@ -8,8 +8,9 @@ import { db } from '../../../firebase';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Download } from 'lucide-react';
 
-export default function page() {
+export default function AccountPage() {
 
     const { isConnected, isDisconnected, address } = useAccount();
     const { toast } = useToast();
@@ -88,30 +89,30 @@ export default function page() {
     };
     return (
         <div className="container mx-auto p-4">
-            {datasets.length > 0 && <h1 className="text-3xl font-bold mb-6">Your DataSets</h1>}
+            {datasets.length > 0 && <h1 className="text-3xl font-bold mb-6 font-mono border-b-2 border-accent py-1">Account</h1>}
             {datasets.length > 0 ?
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {datasets.map((dataset) => (
-                        <Card key={dataset.id} className="hover:shadow-lg transition-shadow">
-                            <CardHeader>
+                        <Card key={dataset.id} className="shadow-lg bg-accent/40 flex flex-col h-full">
+                            <CardHeader className="flex-grow">
                                 <CardTitle className="text-xl">{dataset.name}</CardTitle>
                                 <CardDescription>{dataset.description}</CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex-shrink-0">
                                 <div className="flex items-center justify-between">
-                                    <Badge variant="outline" className="text-sm">${dataset.price} 5ire</Badge>
+                                    <Badge variant="outline" className="text-lg text-muted-foreground">
+                                        {dataset.price} 5ire
+                                    </Badge>
                                 </div>
                             </CardContent>
-                            <CardFooter>
+                            <CardFooter className="flex-shrink-0">
                                 <Button
+                                    variant="outline"
+                                    className="w-full hover:bg-black transition-all font-bold py-6 text-base"
                                     onClick={() => handleDownload(dataset.metadataIpfsHash, dataset.name)}
-                                    className="w-full font-bold"
-                                    disabled={loading}
+                                    disabled={loading || isDisconnected}
                                 >
-                                    {loading && pendingPurchase?.ipfshash === dataset.metadataIpfsHash ? (
-                                        <Loader2 className="mr-2 h-4 w-3 animate-spin" />
-                                    ) : null}
-                                    Download CSV
+                                    <Download /> Download
                                 </Button>
                             </CardFooter>
                         </Card>
