@@ -19,13 +19,13 @@ export default function Navbar() {
 
     const navigation = address ?
         [
-            { name: 'Buy CSV', href: '/buy', current: false, icon: <ShoppingCart /> },
-            { name: 'Upload CSV', href: '/upload', current: true, icon: <Upload /> },
+            { name: 'Buy Dataset', href: '/buy', current: false, icon: <ShoppingCart /> },
+            { name: 'Upload Dataset', href: '/upload', current: true, icon: <Upload /> },
             { name: 'Account', href: '/account', current: false, icon: <User /> },
         ] :
         [
-            { name: 'Buy CSV', href: '/buy', current: false, icon: <ShoppingCart /> },
-            { name: 'Upload CSV', href: '/upload', current: true, icon: <Upload /> }
+            { name: 'Buy Dataset', href: '/buy', current: false, icon: <ShoppingCart /> },
+            { name: 'Upload Dataset', href: '/upload', current: true, icon: <Upload /> }
         ]
     return (
         <>

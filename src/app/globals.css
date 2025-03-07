@@ -64,6 +64,25 @@ body {
   }
 }
 
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 1px;
+}
+
+.background-image {
+  filter: blur(75px)
+}
+
+
 
 @layer base {
   * {
