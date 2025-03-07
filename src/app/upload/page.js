@@ -107,12 +107,14 @@ export default function UploadDataset() {
             const metadataIpfsHash = await uploadToPinata(metadataJson);
 
             console.log(metadataIpfsHash)
-            const priceInWei = parseEther(metadata.price);
+            const newPrice = Number(metadata.price) * 0.1
+            console.log(newPrice)
             const hash = await writeContractAsync({
                 address: contractAddress,
                 abi: contractABI,
                 functionName: 'registerDataset',
-                args: [metadata.name, metadataIpfsHash, priceInWei],
+                args: [metadata.name, metadataIpfsHash, metadata.price],
+                value: parseEther(newPrice.toString())
             });
             const docRef = doc(db, "opendatahub", metadataIpfsHash);
 

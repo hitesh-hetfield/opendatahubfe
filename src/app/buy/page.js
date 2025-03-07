@@ -55,24 +55,25 @@ export default function Page() {
             const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
             // Fetch CSV previews for each dataset
-            const datasetsWithPreviews = await Promise.all(
-                data.map(async (dataset) => {
-                    try {
-                        const metadataUrl = `https://gateway.pinata.cloud/ipfs/${dataset.metadataIpfsHash}`;
-                        const metadataResponse = await fetch(metadataUrl);
-                        const metadata = await metadataResponse.json();
-                        const csvIpfsHash = JSON.parse(metadata).csvIpfsHash;
+            // const datasetsWithPreviews = await Promise.all(
+            //     data.map(async (dataset) => {
+            //         try {
+            //             const metadataUrl = `https://gateway.pinata.cloud/ipfs/${dataset.metadataIpfsHash}`;
+            //             const metadataResponse = await fetch(metadataUrl);
+            //             const metadata = await metadataResponse.json();
+            //             const csvIpfsHash = JSON.parse(metadata).csvIpfsHash;
 
-                        const preview = csvIpfsHash ? await fetchCSVPreview(csvIpfsHash) : "Preview unavailable";
-                        return { ...dataset, preview };
-                    } catch (error) {
-                        console.error("Error fetching metadata or CSV preview:", error);
-                        return { ...dataset, preview: "Preview unavailable" };
-                    }
-                })
-            );
+            //             const preview = csvIpfsHash ? await fetchCSVPreview(csvIpfsHash) : "Preview unavailable";
+            //             return { ...dataset, preview };
+            //         } catch (error) {
+            //             console.error("Error fetching metadata or CSV preview:", error);
+            //             return { ...dataset, preview: "Preview unavailable" };
+            //         }
+            //     })
+            // );
 
-            setDatasets(datasetsWithPreviews);
+            setDatasets(data);
+            // setDatasets(datasetsWithPreviews);
         } catch (error) {
             setError("Failed to fetch datasets");
             console.error("Error fetching datasets:", error);
@@ -83,6 +84,7 @@ export default function Page() {
     };
 
     useEffect(() => {
+        console.log(process.env.API_KEY)
         if (buyFnError) {
             toast({
                 title: "Transaction Failed 🛑",
@@ -171,7 +173,6 @@ export default function Page() {
                 handleDownload(ipfshash, name);
             } else {
                 setPendingPurchase({ ipfshash, docRef: doc.ref, name });
-                const newPrice = Number(price) * 1.10;
                 await buyFn({
                     address: contractAddress,
                     abi: contractABI,
@@ -215,66 +216,61 @@ export default function Page() {
             <h1 className="text-3xl font-bold mb-5 font-mono border-b-2 border-accent/0">Explore & Buy Datasets</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {
-                    isFetching ?
-                        Array.from({ length: 5 }, (index) => (
-                            <LoadingCard key={index} />
+                    datasets.length > 0 ?
+                        datasets.map((dataset) => (
+                            <Card key={dataset.description} className="shadow-lg bg-accent/40 flex flex-col h-full">
+                                <CardHeader className="flex-grow">
+                                    <CardTitle className="text-xl">{dataset.name}</CardTitle>
+                                    <CardDescription>{dataset.description}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-shrink-0">
+                                    <div className="flex items-center justify-between">
+                                        <Badge variant="outline" className="text-lg text-muted-foreground">
+                                            {dataset.price} 5ire
+                                        </Badge>
+                                    </div>
+                                    {/* Display CSV Preview */}
+                                    {/* <div className="my-2">
+                                        <pre className="text-sm font-mono text-muted-foreground w-full overflow-auto bg-accent/20 p-2 rounded">
+                                            {dataset.preview || "Loading preview..."}
+                                        </pre>
+                                    </div> */}
+                                </CardContent>
+                                <CardFooter className="flex-shrink-0">
+                                    {
+                                        dataset.owners?.includes(address)
+                                            ?
+                                            <Button
+                                                variant={"outline"}
+                                                onClick={() => handleDownload(dataset.metadataIpfsHash, dataset.name)}
+                                                className="w-full hover:bg-black transition-all font-bold py-6 text-base"
+                                                disabled={loading || isDisconnected}
+                                            >
+                                                {loading && pendingPurchase?.ipfshash === dataset.metadataIpfsHash ? (
+                                                    <Loader2 className="mr-2 h-4 w-3 animate-spin" />
+                                                ) : null}
+                                                <Download /> Download
+                                            </Button>
+                                            :
+                                            <Button
+                                                onClick={() => checkOwnershipAndBuy(dataset.metadataIpfsHash, dataset.price, dataset.name)}
+                                                className="w-full font-bold py-5 text-base"
+                                                disabled={loading || isDisconnected}
+                                            >
+                                                {loading && pendingPurchase?.ipfshash === dataset.metadataIpfsHash ? (
+                                                    <Loader2 className="mr-2 h-4 w-3 animate-spin" />
+                                                ) : null}
+                                                <DollarSign /> Buy Dataset
+                                            </Button>
+                                    }
+                                </CardFooter>
+                            </Card>
                         ))
                         :
-                        datasets.length > 0 ?
-                            datasets.map((dataset) => (
-                                <Card key={dataset.id} className="shadow-lg bg-accent/40 flex flex-col h-full">
-                                    <CardHeader className="flex-grow">
-                                        <CardTitle className="text-xl">{dataset.name}</CardTitle>
-                                        <CardDescription>{dataset.description}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="flex-shrink-0">
-                                        <div className="flex items-center justify-between">
-                                            <Badge variant="outline" className="text-lg text-muted-foreground">
-                                                {dataset.price} 5ire
-                                            </Badge>
-                                        </div>
-                                        {/* Display CSV Preview */}
-                                        <div className="my-2">
-                                            <pre className="text-sm font-mono text-muted-foreground w-full overflow-auto bg-accent/20 p-2 rounded">
-                                                {dataset.preview || "Loading preview..."}
-                                            </pre>
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter className="flex-shrink-0">
-                                        {
-                                            dataset.owners?.includes(address)
-                                                ?
-                                                <Button
-                                                    variant={"outline"}
-                                                    onClick={() => handleDownload(dataset.metadataIpfsHash, dataset.name)}
-                                                    className="w-full hover:bg-black transition-all font-bold py-6 text-base"
-                                                    disabled={loading || isDisconnected}
-                                                >
-                                                    {loading && pendingPurchase?.ipfshash === dataset.metadataIpfsHash ? (
-                                                        <Loader2 className="mr-2 h-4 w-3 animate-spin" />
-                                                    ) : null}
-                                                    <Download /> Download
-                                                </Button>
-                                                :
-                                                <Button
-                                                    onClick={() => checkOwnershipAndBuy(dataset.metadataIpfsHash, dataset.price, dataset.name)}
-                                                    className="w-full font-bold py-5 text-base"
-                                                    disabled={loading || isDisconnected}
-                                                >
-                                                    {loading && pendingPurchase?.ipfshash === dataset.metadataIpfsHash ? (
-                                                        <Loader2 className="mr-2 h-4 w-3 animate-spin" />
-                                                    ) : null}
-                                                    <DollarSign /> Buy Dataset
-                                                </Button>
-                                        }
-                                    </CardFooter>
-                                </Card>
-                            ))
-                            :
-                            <div className="w-full text-lg text-muted-foreground font-mono font-bold h-full flex gap-2 items-center justify-center">
-                                <ShoppingBagIcon />
-                                No datasets available :(
-                            </div>}
+                        <div className="w-full text-lg text-muted-foreground font-mono font-bold h-full flex gap-2 items-center justify-center">
+                            <ShoppingBagIcon />
+                            No datasets available :(
+                        </div>}
             </div>
         </div>
     );
